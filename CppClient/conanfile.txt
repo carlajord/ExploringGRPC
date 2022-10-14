@@ -1,0 +1,7 @@
+[requires]
+grpc/1.48.0
+fmt/9.1.0
+[generators]
+cmake
+CMakeDeps
+CMakeToolchain

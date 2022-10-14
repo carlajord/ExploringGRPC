@@ -1,0 +1,19 @@
+//python -m grpc_tools.protoc -I./protos --python_out=. --grpc_python_out=. ./protos/stock_service.proto
+
+syntax = "proto3";
+
+package Stock;
+
+import "stock_messages.proto";
+
+service StockService {
+  // Bi-directional
+  rpc GetStockValueAtTime (StockAtTime) returns (StockValue) {}
+  // Bi-directional
+  rpc GetStockValueAndVolumeAtTime (StockAtTime) returns (StockValueAndVolume) {}
+  // Server stream
+  rpc GetStockValueAtAllTimes (StockData) returns (stream StockValues) {}
+  // Client Stream
+  rpc SendStockVolume (stream StockValuesAndVolumes) returns (Empty) {}
+}
+
