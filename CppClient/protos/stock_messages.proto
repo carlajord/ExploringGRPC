@@ -6,7 +6,7 @@ syntax = "proto3";
 
 package Stock;
 
-enum StockInfo {
+enum StockProperty {
   OPEN = 0;
   HIGH = 1;
   LOW = 2;
@@ -30,30 +30,35 @@ message StockVolume {
 
 message StockData {
   StockName company_name = 1;
-  StockInfo info = 2;
+  StockProperty property = 2;
 }
 
-message StockAtTime {
+message StockValueAtTime {
   StockData stock_data = 1;
   string timestamp = 2;
 }
 
-message StockValues {
-  repeated StockValue stock_value = 1;
+message StockValuesAtTime {
+  StockName company_name = 1;
+  string timestamp = 2;
 }
 
-message StockValueAndVolume {
+message StockByProperty {
   oneof info {
     StockValue value_open = 1;
     StockValue value_high = 2;
     StockValue value_low = 3;
     StockValue value_close = 4;
     StockValue value_adj_close = 5;
-    StockVolume volume = 6;
   }
 }
 
-message StockValuesAndVolumes {
-  repeated StockValueAndVolume values = 1;
-  StockName company_name = 2;
+message StockValues {
+    repeated StockByProperty value_by_property = 1;
+}
+
+message StockVolumes {
+  StockName company_name = 1; 
+  StockVolume stock_volume = 2;
+  string timestamp = 3;
 }

@@ -8,4 +8,4 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 
 add_subdirectory(protos)
-add_subdirectory(stock_data_stream/client)
+add_subdirectory(client)

@@ -7,13 +7,23 @@ package Stock;
 import "stock_messages.proto";
 
 service StockService {
+
   // Bi-directional
-  rpc GetStockValueAtTime (StockAtTime) returns (StockValue) {}
+  // Sends a ticker, a property (open, close, high, low, etc.) and a timestamp, 
+  // returns the value for that property
+  rpc GetStockValueAtTime (StockValueAtTime) returns (StockValue) {}
+
   // Bi-directional
-  rpc GetStockValueAndVolumeAtTime (StockAtTime) returns (StockValueAndVolume) {}
+  // Sends a ticker and a timestamp, returns the value for all properties
+  rpc GetStockValuesAtTime (StockValuesAtTime) returns (StockValues) {}
+
   // Server stream
-  rpc GetStockValueAtAllTimes (StockData) returns (stream StockValues) {}
+  // Sends a ticker and a property (open, close, high, low, etc.),  
+  // returns the for that property at all times in the data source
+  rpc GetStockValueAtAllTimes (StockData) returns (stream StockValue) {}
+
   // Client Stream
-  rpc SendStockVolume (stream StockValuesAndVolumes) returns (Empty) {}
+  // Sends volume of all stocks at all times to the server
+  rpc SendStockVolume (stream StockVolumes) returns (Empty) {}
 }
 
