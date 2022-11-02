@@ -1,0 +1,29 @@
+//python -m grpc_tools.protoc -I./protos --python_out=. --grpc_python_out=. ./protos/stock_service.proto
+
+syntax = "proto3";
+
+package Stock;
+
+import "stock_messages.proto";
+
+service StockService {
+
+  // Bi-directional
+  // Sends a ticker, a property (open, close, high, low, etc.) and a timestamp, 
+  // returns the value for that property
+  rpc GetStockValueAtTime (StockValueAtTime) returns (StockValue) {}
+
+  // Bi-directional
+  // Sends a ticker and a timestamp, returns the value for all properties
+  rpc GetStockValuesAtTime (StockValuesAtTime) returns (StockValues) {}
+
+  // Server stream
+  // Sends a ticker and a property (open, close, high, low, etc.),  
+  // returns the for that property at all times in the data source
+  rpc GetStockValueAtAllTimes (StockData) returns (stream StockValue) {}
+
+  // Client Stream
+  // Sends volume of all stocks at all times to the server
+  rpc SendStockVolume (stream StockVolumes) returns (Empty) {}
+}
+

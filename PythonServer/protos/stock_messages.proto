@@ -1,0 +1,64 @@
+
+
+// python -m grpc_tools.protoc -I./protos --python_out=. --grpc_python_out=. ./protos/stock_messages.proto
+
+syntax = "proto3";
+
+package Stock;
+
+enum StockProperty {
+  OPEN = 0;
+  HIGH = 1;
+  LOW = 2;
+  CLOSE = 3;
+  ADJ_CLOSE = 4;
+}
+
+message Empty{}
+
+message StockName {
+  string name = 1;
+}
+
+message StockValue {
+  double value = 1;
+}
+
+message StockVolume {
+  double volume = 1;
+}
+
+message StockData {
+  StockName company_name = 1;
+  StockProperty property = 2;
+}
+
+message StockValueAtTime {
+  StockData stock_data = 1;
+  string timestamp = 2;
+}
+
+message StockValuesAtTime {
+  StockName company_name = 1;
+  string timestamp = 2;
+}
+
+message StockByProperty {
+  oneof info {
+    StockValue value_open = 1;
+    StockValue value_high = 2;
+    StockValue value_low = 3;
+    StockValue value_close = 4;
+    StockValue value_adj_close = 5;
+  }
+}
+
+message StockValues {
+    repeated StockByProperty value_by_property = 1;
+}
+
+message StockVolumes {
+  StockName company_name = 1; 
+  StockVolume stock_volume = 2;
+  string timestamp = 3;
+}
