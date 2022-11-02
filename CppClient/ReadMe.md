@@ -4,7 +4,11 @@ Creates a Visual Studio project with protos and source files.
 
 # Requirements
 
-Requires CMake (https://cmake.org/documentation/) and Conan (https://docs.conan.io/en/latest/) installed
+Requires CMake (https://cmake.org/documentation/) and Conan (https://docs.conan.io/en/latest/) installed.
+This project successfully builds with:
+  * CMake v. 3.23.1
+  * conan v. 1.52.0
+  * pip v. 22.3
 
 # Setup 
 
