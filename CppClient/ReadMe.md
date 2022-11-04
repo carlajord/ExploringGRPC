@@ -32,3 +32,10 @@ conan install .. -s build_type=Debug --build=missing -r conan-center
 cmake ..
 cmake --build .
 ``` 
+
+You can also force Release build.
+``` 
+conan install .. -s build_type=Release --build=missing -r conan-center
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build . --config Release
+``` 

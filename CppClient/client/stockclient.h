@@ -34,9 +34,9 @@ public:
 	void setPort(const string port);
 
 	// Functions
-	void GetValue(const StockByProperty* val_ptr);
+	void GetValue(const StockByProperty* val_ptr) const;
 	void SimpleReadCSV();
-	void StartStreaming(SimpleThreadMgr* threadMgr, vector<string> tickers);
+	void StreamStockVolume(SimpleThreadMgr* threadMgr, vector<string> tickers);
 
 	// Functions GRPC implementation
 	void CallGetStockValueAtTime(string ticker, string timestamp, Stock::StockProperty required_property);

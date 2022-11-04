@@ -32,62 +32,62 @@ void StockClient::setPort(const string port)
 
 
 // Functions
-void StockClient::GetValue(const StockByProperty* valPtr) {
+void StockClient::GetValue(const StockByProperty* valPtr) const {
 
 	auto val = 0.0;
 	switch (valPtr->info_case()) {
 	case StockByProperty::InfoCase::kValueOpen:
 		if (valPtr->has_value_open()) {
 			val = valPtr->value_open().value();
-			string msg = fmt::format("The OPEN value is {}.", to_string(val));
+			string msg = fmt::format("  The OPEN value is {}.", to_string(val));
 			std::cout << msg << std::endl;
 		}
 		else {
-			string msg = fmt::format("Error: Value not found.");
+			string msg = fmt::format("  Error: OPEN value not found.");
 			std::cout << msg << std::endl;
 		}
 		break;
 	case StockByProperty::InfoCase::kValueHigh:
 		if (valPtr->has_value_high()) {
 			val = valPtr->value_high().value();
-			string msg = fmt::format("The HIGH value is {}.", to_string(val));
+			string msg = fmt::format("  The HIGH value is {}.", to_string(val));
 			std::cout << msg << std::endl;
 		}
 		else {
-			string msg = fmt::format("Error: Value not found.");
+			string msg = fmt::format("  Error: HIGH value not found.");
 			std::cout << msg << std::endl;
 		}
 		break;
 	case StockByProperty::InfoCase::kValueLow:
 		if (valPtr->has_value_low()) {
 			val = valPtr->value_low().value();
-			string msg = fmt::format("The LOW value is {}.", to_string(val));
+			string msg = fmt::format("  The LOW value is {}.", to_string(val));
 			std::cout << msg << std::endl;
 		}
 		else {
-			string msg = fmt::format("Error: Value not found.");
+			string msg = fmt::format("  Error: LOW value not found.");
 			std::cout << msg << std::endl;
 		}
 		break;
 	case StockByProperty::InfoCase::kValueClose:
 		if (valPtr->has_value_close()) {
 			val = valPtr->value_close().value();
-			string msg = fmt::format("The CLOSE value is {}.", to_string(val));
+			string msg = fmt::format("  The CLOSE value is {}.", to_string(val));
 			std::cout << msg << std::endl;
 		}
 		else {
-			string msg = fmt::format("Error: Value not found.");
+			string msg = fmt::format("  Error: CLOSE value not found.");
 			std::cout << msg << std::endl;
 		}
 		break;
 	case StockByProperty::InfoCase::kValueAdjClose:
 		if (valPtr->has_value_adj_close()) {
 			val = valPtr->value_adj_close().value();
-			string msg = fmt::format("The ADJ_CLOSE value is {}.", to_string(val));
+			string msg = fmt::format("  The ADJ_CLOSE value is {}.", to_string(val));
 			std::cout << msg << std::endl;
 		}
 		else {
-			string msg = fmt::format("Error: Value not found.");
+			string msg = fmt::format("  Error: ADJ_CLOSE value not found.");
 			std::cout << msg << std::endl;
 		}
 		break;
@@ -140,6 +140,10 @@ void StockClient::CallGetStockValuesAtTime(string ticker, string timestamp) {
 	auto response = StockValues();
 	grpc::Status status = m_stub->GetStockValuesAtTime(&context, request, &response);
 	if (status.ok()) {
+
+		string msg = fmt::format("Stock values for company: {}", ticker);
+		std::cout << msg << std::endl;
+
 		for (const StockByProperty& r : response.value_by_property()) {
 			GetValue(&r);
 		}
@@ -184,43 +188,40 @@ void StockClient::CallGetStockValueAtAllTimes(string ticker, Stock::StockPropert
 };
 void StockClient::CallSendStockVolume(std::atomic<bool>* kill_flag, string ticker) {
 
-	/* Sends to the server the volume of all stocks
-	at all times from the data source. Each stock ticker
-	is sent in a different thread. */
+	/* Sends to the server the volume of a stock
+	at all times from the data source. */
 	
-	// acquire values from 
-	SimpleReadCSV();
-
 	grpc::ClientContext context;
 	auto request = StockVolumes();
 
 	auto response = Empty();
 
 	std::unique_ptr<grpc::ClientWriter<StockVolumes> > writer(
-		m_stub->SendStockVolume(&context, &response));
+	m_stub->SendStockVolume(&context, &response));
 
-	while (true) {
+	for (size_t i = 0; i < m_volumes.size(); i++) {
 
 		if (*kill_flag) {
 			std::cout << "Kill request received" << std::endl;
 			break;
 		}
 
-		request.mutable_company_name()->set_name(ticker);
-		for (size_t i = 0; i < m_volumes[1].size(); i++) {
-			if (m_volumes[1][i] == ticker) {
-				request.set_timestamp(m_volumes[0][i]);
-				request.mutable_stock_volume()->set_volume(stod(m_volumes[2][i]));
-			}
-		}
+		if (m_volumes[i][1] == ticker) {
+			request.mutable_company_name()->set_name(ticker);
+			request.set_timestamp(m_volumes[i][0]);
+			request.mutable_stock_volume()->set_volume(stod(m_volumes[i][2]));
 
-		if (!writer->Write(request)) {
-			// Broken stream.
-			break;
+			if (!writer->Write(request)) {
+				// Broken stream.
+				break;
+			}
+
 		}
-		request.Clear();
 
 	}
+
+	writer->WritesDone();
+	grpc::Status status = writer->Finish();
 
 };
 
@@ -246,9 +247,13 @@ void StockClient::SimpleReadCSV() {
 	}
 }
 
-void StockClient::StartStreaming(SimpleThreadMgr* threadMgr, vector<string> tickers) {
+void StockClient::StreamStockVolume(SimpleThreadMgr* threadMgr, vector<string> tickers) {
 	
+	/* Uploads and sends volume of required stocks to the server.
+	Each stock ticker volume is sent in a different thread. */
+
 	vector<thread> threads;
+	SimpleReadCSV();
 
 	for (size_t i = 0; i < tickers.size(); i++) {
 

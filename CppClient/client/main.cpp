@@ -12,20 +12,26 @@ int main(int argc, char **argv) {
     std::string host = "localhost";
     std::string port = "54321";
 
-    auto theClient = new StockClient();
+    auto channel = grpc::CreateChannel(host + ":" + port,
+        grpc::InsecureChannelCredentials());
+
+    auto theClient = new StockClient(channel);
     
     string ticker = "GOLD";
-    string timestamp = "2020-03-10";
+    string timestamp = "2022-01-13";
     auto required_property = CLOSE;
     theClient->CallGetStockValueAtTime(ticker, timestamp, required_property);
 
     ticker = "XOM";
-    timestamp = "2020-01-21";
+    timestamp = "2022-03-14";
     theClient->CallGetStockValuesAtTime(ticker, timestamp);
 
     ticker = "EQR";
     required_property = OPEN;
     theClient->CallGetStockValueAtAllTimes(ticker, required_property);
 
-
+    vector<string> tickers = { "GOLD" , "XOM", "EQR", "CVX", "TTE", "COP"};
+    timestamp = "2022-02-09";
+    auto threadMgr = SimpleThreadMgr();
+    theClient->StreamStockVolume(&threadMgr, tickers);
 }
