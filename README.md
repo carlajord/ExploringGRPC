@@ -1,4 +1,4 @@
-# ExploringGRPC
+# GRPC Framework - Stock Data
 
 Exploring GRPC communication framework.</br>
 This repo has a toy example on how to use protocol buffers and grpc to exchange data between a client and a server.</br>
